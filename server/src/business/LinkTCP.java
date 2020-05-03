@@ -165,7 +165,7 @@ public class LinkTCP {
 			if (dis.readBoolean())
 				psql.setString(3, dis.readUTF());
 			else
-				psql.setString(3, "");
+				psql.setString(3, " ");
 			if (dis.readBoolean())
 				psql.setByte(4, (byte) 1);
 			else
@@ -173,11 +173,11 @@ public class LinkTCP {
 			if (dis.readBoolean())
 				psql.setString(5, dis.readUTF());
 			else
-				psql.setString(5, "");
+				psql.setString(5, " ");
 			if (dis.readBoolean())
 				psql.setString(6, dis.readUTF());
 			else
-				psql.setString(6, "");
+				psql.setString(6, " ");
 			psql.setByte(7, (byte) 1);
 			psql.setLong(8, getNetworkTime());
 			psql.setInt(9, dis.readInt());

@@ -78,7 +78,6 @@ public class ProcessMessages {
 				byte type = dis.readByte();
 				ByteArrayOutputStream baos1;
 				DataOutputStream dos1;
-				System.out.println(" 65 已上线");
 				switch (type) {
 				case 0:// 添加好友 判断有没有这个微信号
 					if (dis.readBoolean()) {
@@ -91,7 +90,7 @@ public class ProcessMessages {
 					dis.close();
 					break;
 				case 1:// 文字信息
-					id = dis.readLong();System.out.println("接收了一个消息");
+					id = dis.readLong();
 					message = dis.readUTF();
 					time = dis.readLong();
 					dis.close();
@@ -135,7 +134,7 @@ public class ProcessMessages {
 						FriendClass friend=(FriendClass)FriendClass.deserizlize(b);
 						FriendsPane.friendsData.add(friend);
 						MyFrame.friendsPane.addFriend(friend);
-						//MyFrame.repaintFriendsPane();
+						MyFrame.messagePane.getFriendsPane().repaint();;
 						Main.myFrame.repaint();
 					}
 				}

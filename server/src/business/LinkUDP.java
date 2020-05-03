@@ -34,7 +34,7 @@ public class LinkUDP {
 
 	}
 
-	public static void init() {
+	public  void init() {
 		try {
 			// InetAddress serverAddress = InetAddress.getByName(Main.getServerHost());
 			socket = new DatagramSocket(Main.getUdpPort());
@@ -102,15 +102,10 @@ public class LinkUDP {
 						udp = getAddress(addid);
 						switch (disposeFriend) {
 						case "1":
-							dos.writeByte(7);
-							dos.writeLong(sendID);
-							dos.writeBoolean(true);
-							byte[] addfriendData = Mysql.getFriend(sendID);
-							dos.writeInt(addfriendData.length);
-							dos.write(addfriendData);
-							sendData = baos.toByteArray();
+							sendData = sendFriengData(sendID);
 							sendPacket = new DatagramPacket(sendData, sendData.length, udp.address, udp.udp_port);
 							socket.send(sendPacket);
+							sendData = sendFriengData(addid);
 							sendPacket = new DatagramPacket(sendData, sendData.length, clientAddress, clientPort);
 							socket.send(sendPacket);
 							Mysql.addFriend(sendID, addid);
@@ -136,12 +131,12 @@ public class LinkUDP {
 								byte[] friendData = Mysql.getFriend(sendID);
 								dos.writeInt(friendData.length);
 								dos.write(friendData);
+								Mysql.addInMessage_not(type, sendID, addid, 0L, disposeFriend);// 存进数据库 message_not
 							} else
-								dos.writeLong(1L);
+								dos.writeLong(-1L);
 							sendData = baos.toByteArray();
-							sendPacket = new DatagramPacket(sendData, sendData.length, udp.address, udp.udp_port);
+							sendPacket = new DatagramPacket(sendData, sendData.length, clientAddress, clientPort);
 							socket.send(sendPacket);
-							Mysql.addInMessage_not(type, sendID, addid,0L, disposeFriend);// 存进数据库 message_not
 							dos.close();
 							break;
 						}
@@ -199,4 +194,20 @@ public class LinkUDP {
 		return null;
 	}
 
+	private  byte[] sendFriengData(long id) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		DataOutputStream dos = new DataOutputStream(baos);
+		try {
+			dos.writeByte(7);
+			dos.writeLong(id);
+			dos.writeBoolean(true);
+			byte[] addfriendData = Mysql.getFriend(id);
+			dos.writeInt(addfriendData.length);
+			dos.write(addfriendData);
+			return baos.toByteArray();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

@@ -37,7 +37,7 @@ public class FriendsPane extends JPanel {
 	public static ArrayList<FriendClass> friendsData = FriendClass.getMyFriendsData();// 所有好友数据
 	private HashMap<Character, Integer> letter = new HashMap<Character, Integer>();// 好友首字母相同的个数
 	private HanyuPinyinOutputFormat defaultFormat;
-	private int letterSite = 0;// 字母面板个数
+	// private int letterSite = 0;// 字母面板个数
 
 	public FriendsPane() {
 		fs.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -64,7 +64,7 @@ public class FriendsPane extends JPanel {
 		for (int i = 0; i < friendsData.size(); i++) {
 			addFriend(friendsData.get(i));
 		}
-		repaint();
+		friendsPane.repaint();
 	}
 
 	public void addFriend(FriendClass friend) {
@@ -74,7 +74,6 @@ public class FriendsPane extends JPanel {
 		else
 			icon = new ImageIcon("image\\weixin.png");
 		icon.setImage(icon.getImage().getScaledInstance(36, 36, Image.SCALE_AREA_AVERAGING));
-		System.out.println(friend.getName());
 		String name;
 		char oneLetter = 0;
 		String[] pinyin = null;
@@ -83,60 +82,49 @@ public class FriendsPane extends JPanel {
 			name = friend.getName();
 		else
 			name = friend.getNote();
-		if (!name.equals("")) {
+		if (!name.equals("")) {// 计算各个好友面板的位置
 			pinyin = PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
 			if (pinyin != null)// 判断名字首字母
-				oneLetter = Character.toTitleCase(pinyin[0].charAt(0));
+				oneLetter = Character.toUpperCase(pinyin[0].charAt(0));
 			else
-				oneLetter = Character.toTitleCase(name.charAt(0));
+				oneLetter = Character.toUpperCase(name.charAt(0));
 			if (Character.isLetter(oneLetter)) {
 				if (letter.containsKey(oneLetter))
-					letter.compute(oneLetter, (k, v) -> v + 1);
+					letter.put(oneLetter, letter.get(oneLetter) + 1);
 				else {
+					letter.put(oneLetter, 2);
 					for (int j = 65; j < (byte) oneLetter; j++) {// 判断这个字母前面有多少个面板项
-						if (letter.containsKey((char) j)) {
+						if (letter.containsKey((char) j))
 							friendSite += letter.get((char) j);
-							letterSite++;
-						}
 					}
-					JPanel panel = new JPanel();
-					JLabel lettl = new JLabel(Character.toString(oneLetter), JLabel.LEFT);
-					panel.setLayout(null);
-					panel.setPreferredSize(new Dimension(240, 30));
-					lettl.setBounds(10, 8, 20, 30);
-					lettl.setFont(new Font("宋体", Font.BOLD, 17));
-					panel.add(lettl);
-					friendsPane.add(panel, friendSite + letterSite);
-					letter.put(oneLetter, 0);
+					setLetterPane(oneLetter, friendSite);
 				}
 			} else {
-				if (letter.containsKey('#'))// 名字首位不是汉子对应的个数加1
-					letter.compute('#', (k, v) -> v + 1);
+				oneLetter = '[';
+				if (letter.containsKey(oneLetter))// 名字首位不是汉子对应的个数加1
+					letter.put(oneLetter, letter.get(oneLetter) + 1);
 				else {
+					letter.put(oneLetter, 2);
 					for (int j = 65; j < 91; j++) {// 判断这个字母前面有多少个面板项
-						if (letter.containsKey((char) j)) {
+						if (letter.containsKey((char) j))
 							friendSite += letter.get((char) j);
-							letterSite++;
-						}
 					}
-					JPanel panel = new JPanel();
-					JLabel lettl = new JLabel("#", JLabel.LEFT);
-					panel.setLayout(null);
-					panel.setPreferredSize(new Dimension(240, 30));
-					lettl.setBounds(10, 8, 20, 30);
-					lettl.setFont(new Font("宋体", Font.BOLD, 17));
-					panel.add(lettl);
-					friendsPane.add(panel, friendSite + letterSite);
-					letter.put('#', 0);
+					setLetterPane('#', friendSite);
 				}
 			}
-		} else
-			for (int j = 65; j < 91; j++) {// 判断这个字母前面有多少个面板项
-				if (letter.containsKey((char) j)) {
-					friendSite += letter.get((char) j);
-					letterSite++;
+		} else {
+			oneLetter = '[';
+			if (letter.containsKey(oneLetter))// 名字首位不是汉子对应的个数加1
+				letter.put(oneLetter, letter.get(oneLetter) + 1);
+			else {
+				letter.put(oneLetter, 2);
+				for (int j = 65; j < 91; j++) {// 判断这个字母前面有多少个面板项
+					if (letter.containsKey((char) j))
+						friendSite += letter.get((char) j);
 				}
+				setLetterPane('#', friendSite);
 			}
+		}
 		JPanel panel = new JPanel();
 		JButton button = new JButton();
 		JLabel imagel = new JLabel(icon);
@@ -160,13 +148,19 @@ public class FriendsPane extends JPanel {
 				friendSite += letter.get((char) j);
 		}
 		panel.repaint();
-		friendsPane.add(panel, friendSite + letterSite + 1);
+		friendsPane.add(panel, friendSite + 1);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MyFrame.messagePane.updateMessagePane(friend.getId(), "", Main.getNetworkTime(), true);
+				String message = "";
+				boolean bool = false;
+				for (int i = 0; i < MessagePane.cattingRecordsData.size(); i++)//判断信息面板有没本地记录
+					if (MessagePane.cattingRecordsData.get(i).get(0).getFriendId() == friend.getId())
+						bool = true;
+				if (!bool)
+					MyFrame.messagePane.updateMessagePane(friend.getId(), message, Main.getNetworkTime(), true);
 				Main.myFrame.cutCentrePane();
-				Main.myFrame.openChatPeanl(friend.getId());
+				Main.myFrame.openChatPeanl(friend.getId(), name);
 				Main.myFrame.functionPane.friends.setEnabled(true);
 				Main.myFrame.functionPane.word.setEnabled(false);
 			}
@@ -191,6 +185,18 @@ public class FriendsPane extends JPanel {
 				new AddFriendDialog().disposeFriend();
 			}
 		});
+	}
+
+	private void setLetterPane(char letterName, int friendSite) {
+		JPanel panel = new JPanel();
+		JLabel lettl = new JLabel(Character.toString(letterName), JLabel.LEFT);
+		panel.setLayout(null);
+		panel.setPreferredSize(new Dimension(240, 30));
+		lettl.setBounds(10, 8, 20, 30);
+		lettl.setFont(new Font("宋体", Font.BOLD, 17));
+		panel.add(lettl);
+		friendsPane.add(panel, friendSite);
+		// letter.put(letterName, 0);
 	}
 
 }

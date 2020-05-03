@@ -27,7 +27,7 @@ import main.Main;
 
 public class MessagePane extends JPanel {
 
-	private ArrayList<ArrayList<CattingRecordsClass>> cattingRecordsData = (new CattingRecordsClass())
+	public static ArrayList<ArrayList<CattingRecordsClass>> cattingRecordsData = (new CattingRecordsClass())
 			.getCattingRecordsData();// 聊天页面的数据
 	private JPanel p = new JPanel();// 搜索栏
 	private JPanel friendsPane = new JPanel();// 好友面板
@@ -86,8 +86,8 @@ public class MessagePane extends JPanel {
 		else
 			icon = new ImageIcon("image\\weixin.png");
 		icon.setImage(icon.getImage().getScaledInstance(36, 36, Image.SCALE_AREA_AVERAGING));
-		String name = null;// 好友微信名
 		String date = null;
+		String name = null;// 好友微信名
 		int site = 0;// 根据消息时间判断位置
 		for (int j = 0; j < FriendsPane.friendsData.size(); j++) {// 找出对应微信号的头像和名字
 			if (FriendsPane.friendsData.get(j).getId() == id) {
@@ -104,10 +104,12 @@ public class MessagePane extends JPanel {
 			else
 				date = new SimpleDateFormat("MM/dd").format(time);
 			for (int j = 0; j < friendsPane.getComponentCount(); j++) // 根据消息时间判断位置
-				if (cattingRecordsData.get(j).get(cattingRecordsData.get(j).size() - 1).getTime() < time) {System.out.println("site++");
-				System.out.println(cattingRecordsData.get(j).get(cattingRecordsData.get(j).size() - 1).getTime());
-				System.out.println(time);
-					site++;}
+				if (cattingRecordsData.get(j).get(cattingRecordsData.get(j).size() - 1).getTime() < time) {
+					System.out.println("site++");
+					System.out.println(cattingRecordsData.get(j).get(cattingRecordsData.get(j).size() - 1).getTime());
+					System.out.println(time);
+					site++;
+				}
 		} else
 			date = new SimpleDateFormat("HH:mm").format(time);
 		JButton button = new JButton();
@@ -137,11 +139,14 @@ public class MessagePane extends JPanel {
 		pane.add(button);
 		pane.repaint();
 		friendsPane.add(pane, site);
+		friendsPane.repaint();
+		fs.repaint();
+		String s=name;
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MyFrame.openChatPeanl(id);
-				
+				long q=id;
+				Main.myFrame.openChatPeanl(id,s);
 			}
 		});
 	}
@@ -164,4 +169,9 @@ public class MessagePane extends JPanel {
 			}
 		});
 	}
+
+	public JPanel getFriendsPane() {
+		return friendsPane;
+	}
+
 }

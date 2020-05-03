@@ -24,10 +24,10 @@ public class SendMessage_not {// 把下线是收不到的信息发出去
 			while (rs.next()) {// 把下线是收不到的信息发出去
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				DataOutputStream dos = new DataOutputStream(baos);
-				dos.writeByte(rs.getByte("type"));
 				long sendID = rs.getLong("send_id");
 				long time = rs.getLong("time");
 				String message = rs.getString("message");
+				dos.writeByte(rs.getByte("type"));
 				dos.writeLong(sendID);
 				dos.writeUTF(message);
 				dos.writeLong(time);
